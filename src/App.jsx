@@ -2,6 +2,7 @@ import { useRef, useState, useCallback } from 'react'
 import { toPng } from 'html-to-image'
 import Phone from './components/Phone.jsx'
 import Editor from './components/Editor.jsx'
+import { formatDateLine } from './lib/formatDate.js'
 
 let nextId = 100
 const makeId = () => ++nextId
@@ -10,7 +11,7 @@ const makeId = () => ++nextId
 const DEFAULT_STATE = {
   style: 'green', // 'green' (RCS/SMS) | 'blue' (iMessage)
   contactName: '+1 (720) 266-8164',
-  dateLine: 'Today 4:51 PM',
+  dateTime: new Date(), // conversation date — rendered Apple-style by formatDateLine()
   readLabel: 'Read', // 'Read' | 'Delivered' | '' (off)
   readTime: '5:05 PM',
   unreadBadge: '1',
