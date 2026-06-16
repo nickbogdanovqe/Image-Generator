@@ -35,6 +35,33 @@ export default function Editor({
       </section>
 
       <section>
+        <h2>Status bar</h2>
+        <div className="row-2">
+          <label>
+            Time
+            <input
+              type="text"
+              value={state.statusTime}
+              onChange={(e) => update({ statusTime: e.target.value })}
+            />
+          </label>
+          <label className="toggle-label">
+            Do Not Disturb
+            <button
+              type="button"
+              role="switch"
+              aria-checked={state.doNotDisturb}
+              className={`toggle ${state.doNotDisturb ? 'on' : ''}`}
+              onClick={() => update({ doNotDisturb: !state.doNotDisturb })}
+            >
+              <span className="toggle-knob" />
+            </button>
+          </label>
+        </div>
+        <p className="hint">The moon icon shows next to the clock when on.</p>
+      </section>
+
+      <section>
         <h2>Header</h2>
         <label>
           Contact name / number
