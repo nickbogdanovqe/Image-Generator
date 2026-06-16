@@ -1,3 +1,7 @@
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { formatDateLine } from '../lib/formatDate.js'
+
 export default function Editor({
   state,
   update,
@@ -41,13 +45,27 @@ export default function Editor({
           />
         </label>
         <label>
-          Date line
-          <input
-            type="text"
-            value={state.dateLine}
-            onChange={(e) => update({ dateLine: e.target.value })}
+          Conversation date &amp; time
+          <DatePicker
+            selected={state.dateTime}
+            onChange={(date) => date && update({ dateTime: date })}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={5}
+            timeCaption="Time"
+            dateFormat="EEE, MMM d 'at' HH:mm"
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            maxDate={new Date()}
+            popperPlacement="bottom-start"
+            wrapperClassName="datepicker-wrap"
+            className="datepicker-input"
           />
         </label>
+        <p className="hint">
+          Preview: <strong>{formatDateLine(state.dateTime)}</strong>
+        </p>
         <label>
           Back-button unread badge
           <input

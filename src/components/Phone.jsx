@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import { formatDateLine } from '../lib/formatDate.js'
 
 // ---------- small SVG / glyph pieces ----------
 
@@ -68,12 +69,14 @@ const Phone = forwardRef(function Phone({ state }, ref) {
   const {
     style,
     contactName,
-    dateLine,
+    dateTime,
     readLabel,
     readTime,
     unreadBadge,
     messages,
   } = state
+
+  const dateLine = formatDateLine(dateTime)
 
   // index of the last "me" message — receipt only shows on it when it's the final message
   const lastMeIndex = messages.reduce((acc, m, i) => (m.side === 'me' ? i : acc), -1)

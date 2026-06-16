@@ -128,6 +128,45 @@ body {
   color: #fff;
 }
 
+/* date picker */
+.datepicker-wrap {
+  display: block;
+  width: 100%;
+}
+.datepicker-input {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px 10px;
+  border: 1px solid #d8d8dd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #1c1c1e;
+  cursor: pointer;
+}
+.datepicker-input:focus {
+  outline: none;
+  border-color: #0a7cff;
+}
+/* react-datepicker popup tweaks */
+.react-datepicker {
+  font-family: inherit;
+  border-color: #d8d8dd;
+}
+.react-datepicker__header {
+  background: #f7f7f9;
+  border-bottom-color: #ececef;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__time-list-item--selected {
+  background: #0a7cff !important;
+}
+.react-datepicker-popper {
+  z-index: 20;
+}
+
 /* message editor rows */
 .msg-list {
   display: flex;
