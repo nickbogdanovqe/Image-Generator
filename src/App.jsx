@@ -10,6 +10,8 @@ const makeId = () => ++nextId
 // Default conversation seeds the app to match the reference image out of the box.
 const DEFAULT_STATE = {
   style: 'green', // 'green' (RCS/SMS) | 'blue' (iMessage)
+  statusTime: '5:13', // status-bar clock
+  doNotDisturb: true, // status-bar moon (Do Not Disturb / Focus) on/off
   contactName: '+1 (720) 266-8164',
   dateTime: new Date(), // conversation date — rendered Apple-style by formatDateLine()
   readLabel: 'Read', // 'Read' | 'Delivered' | '' (off)
