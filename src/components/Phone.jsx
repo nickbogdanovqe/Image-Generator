@@ -68,6 +68,8 @@ function MicIcon() {
 const Phone = forwardRef(function Phone({ state }, ref) {
   const {
     style,
+    statusTime,
+    doNotDisturb,
     contactName,
     dateTime,
     readLabel,
@@ -88,8 +90,8 @@ const Phone = forwardRef(function Phone({ state }, ref) {
       {/* status bar */}
       <div className="statusbar">
         <div className="statusbar-left">
-          <span className="clock">5:13</span>
-          <MoonIcon />
+          <span className="clock">{statusTime}</span>
+          {doNotDisturb ? <MoonIcon /> : null}
         </div>
         <div className="statusbar-right">
           <SignalIcon />
