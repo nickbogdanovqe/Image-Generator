@@ -245,6 +245,34 @@ body {
   border-color: #ffd0cc;
 }
 
+.msg-date {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.msg-date-label {
+  font-size: 12px;
+  color: var(--secondary);
+}
+.msg-date-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.msg-date-actions button {
+  padding: 5px 10px;
+  border: 1px solid #d2d2d7;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+}
+.msg-date-picker {
+  margin-bottom: 8px;
+}
+
 .add-row {
   display: flex;
   gap: 10px;
@@ -447,6 +475,14 @@ body {
 }
 .row.them {
   justify-content: flex-start;
+}
+
+.date-separator {
+  align-self: center;
+  font-size: 12px;
+  color: var(--secondary);
+  margin: 12px 0 10px;
+  text-align: center;
 }
 
 .bubble {

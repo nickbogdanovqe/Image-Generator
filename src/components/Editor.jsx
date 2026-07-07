@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { formatDateLine } from '../lib/formatDate.js'
+import { getEffectiveDateTime } from '../lib/messageDates.js'
 
 export default function Editor({
   state,
@@ -9,9 +11,24 @@ export default function Editor({
   updateMessage,
   removeMessage,
   moveMessage,
+  startNewDay,
   onExport,
   busy,
 }) {
+  const [datePickerOpen, setDatePickerOpen] = useState({})
+
+  const toggleDatePicker = (id) => {
+    setDatePickerOpen((open) => ({ ...open, [id]: !open[id] }))
+  }
+
+  const clearMessageDate = (id) => {
+    setDatePickerOpen((open) => {
+      const next = { ...open }
+      delete next[id]
+      return next
+    })
+    updateMessage(id, { dateTime: undefined })
+  }
   return (
     <div className="editor">
       <h1>iMessage Screenshot Generator</h1>
@@ -91,6 +108,9 @@ export default function Editor({
           />
         </label>
         <p className="hint">
+          Default date for messages until a new day is set on a specific message.
+        </p>
+        <p className="hint">
           Preview: <strong>{formatDateLine(state.dateTime)}</strong>
         </p>
         <label>
@@ -136,7 +156,9 @@ export default function Editor({
       <section>
         <h2>Messages</h2>
         <div className="msg-list">
-          {state.messages.map((m, i) => (
+          {state.messages.map((m, i) => {
+            const effectiveDate = getEffectiveDateTime(state.messages, i, state.dateTime)
+            return (
             <div key={m.id} className="msg-edit">
               <div className="msg-edit-top">
                 <div className="seg small">
@@ -177,6 +199,45 @@ export default function Editor({
                   </button>
                 </div>
               </div>
+              <div className="msg-date">
+                <span className="msg-date-label">
+                  Day: <strong>{formatDateLine(effectiveDate)}</strong>
+                  {m.dateTime ? ' (custom)' : ''}
+                </span>
+                <div className="msg-date-actions">
+                  <button type="button" onClick={() => startNewDay(m.id)}>
+                    New day
+                  </button>
+                  <button type="button" onClick={() => toggleDatePicker(m.id)}>
+                    {datePickerOpen[m.id] ? 'Hide date' : 'Set date'}
+                  </button>
+                  {m.dateTime ? (
+                    <button type="button" onClick={() => clearMessageDate(m.id)}>
+                      Clear date
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+              {datePickerOpen[m.id] ? (
+                <div className="msg-date-picker">
+                  <DatePicker
+                    selected={m.dateTime ?? effectiveDate}
+                    onChange={(date) => date && updateMessage(m.id, { dateTime: date })}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={5}
+                    timeCaption="Time"
+                    dateFormat="EEE, MMM d 'at' HH:mm"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    maxDate={new Date()}
+                    popperPlacement="bottom-start"
+                    wrapperClassName="datepicker-wrap"
+                    className="datepicker-input"
+                  />
+                </div>
+              ) : null}
               <textarea
                 rows={2}
                 value={m.text}
@@ -184,7 +245,8 @@ export default function Editor({
                 onChange={(e) => updateMessage(m.id, { text: e.target.value })}
               />
             </div>
-          ))}
+            )
+          })}
         </div>
         <div className="add-row">
           <button onClick={() => addMessage('me')}>+ Add from Me</button>

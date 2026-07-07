@@ -2,7 +2,7 @@ import { useRef, useState, useCallback } from 'react'
 import { toPng } from 'html-to-image'
 import Phone from './components/Phone.jsx'
 import Editor from './components/Editor.jsx'
-import { formatDateLine } from './lib/formatDate.js'
+import { getEffectiveDateTime, nextCalendarDay } from './lib/messageDates.js'
 
 let nextId = 100
 const makeId = () => ++nextId
@@ -17,6 +17,7 @@ const DEFAULT_STATE = {
   readLabel: 'Read', // 'Read' | 'Delivered' | '' (off)
   readTime: '5:05 PM',
   unreadBadge: '1',
+  // messages: { id, side, text, dateTime? } — dateTime marks the first message of a new day
   messages: [
     { id: 1, side: 'them', text: 'C' },
     { id: 2, side: 'me', text: 'Вечер в хату' },
@@ -72,6 +73,23 @@ export default function App() {
     })
   }, [])
 
+  const startNewDay = useCallback((id) => {
+    setState((s) => {
+      const idx = s.messages.findIndex((m) => m.id === id)
+      if (idx < 0) return s
+      const prevDate = getEffectiveDateTime(
+        s.messages,
+        idx > 0 ? idx - 1 : 0,
+        s.dateTime,
+      )
+      const dateTime = nextCalendarDay(prevDate)
+      return {
+        ...s,
+        messages: s.messages.map((m) => (m.id === id ? { ...m, dateTime } : m)),
+      }
+    })
+  }, [])
+
   // ----- export -----
   const handleExport = useCallback(async () => {
     const node = phoneRef.current
@@ -104,6 +122,7 @@ export default function App() {
         updateMessage={updateMessage}
         removeMessage={removeMessage}
         moveMessage={moveMessage}
+        startNewDay={startNewDay}
         onExport={handleExport}
         busy={busy}
       />

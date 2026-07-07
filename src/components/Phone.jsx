@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import { formatDateLine } from '../lib/formatDate.js'
+import { buildThreadItems, getEffectiveDateTime } from '../lib/messageDates.js'
 
 // ---------- small SVG / glyph pieces ----------
 
@@ -78,7 +79,9 @@ const Phone = forwardRef(function Phone({ state }, ref) {
     messages,
   } = state
 
-  const dateLine = formatDateLine(dateTime)
+  const dateLine = formatDateLine(getEffectiveDateTime(messages, 0, dateTime))
+
+  const threadItems = buildThreadItems(messages, dateTime)
 
   // index of the last "me" message — receipt only shows on it when it's the final message
   const lastMeIndex = messages.reduce((acc, m, i) => (m.side === 'me' ? i : acc), -1)
@@ -121,13 +124,22 @@ const Phone = forwardRef(function Phone({ state }, ref) {
 
       {/* messages */}
       <div className="messages">
-        {messages.map((m, i) => {
-          const next = messages[i + 1]
-          const isLastOfRun = !next || next.side !== m.side
+        {threadItems.map((item) => {
+          if (item.type === 'date') {
+            return (
+              <div key={item.key} className="date-separator">
+                {formatDateLine(item.dateTime)}
+              </div>
+            )
+          }
+
+          const { message, index } = item
+          const next = messages[index + 1]
+          const isLastOfRun = !next || next.side !== message.side
           return (
-            <div key={m.id} className={`row ${m.side}`}>
-              <div className={`bubble ${m.side} ${isLastOfRun ? 'tail' : ''}`}>
-                {m.text}
+            <div key={item.key} className={`row ${message.side}`}>
+              <div className={`bubble ${message.side} ${isLastOfRun ? 'tail' : ''}`}>
+                {message.text}
               </div>
             </div>
           )
