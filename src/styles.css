@@ -314,7 +314,8 @@ body {
 }
 
 .phone {
-  width: 390px;
+  width: 440px;
+  height: 956px;
   background: var(--phone-bg);
   display: flex;
   flex-direction: column;
@@ -324,6 +325,17 @@ body {
   border-radius: 0;
   box-shadow: 0 6px 30px rgba(0, 0, 0, 0.18);
   overflow: hidden;
+}
+
+/* Unconstrained height used only for offscreen measurement */
+.phone.phone-measure {
+  height: auto;
+  min-height: 956px;
+}
+
+.phone.phone-measure .messages {
+  flex: none;
+  overflow: visible;
 }
 
 /* ---- status bar ---- */
@@ -462,10 +474,16 @@ body {
 /* ---- messages ---- */
 .messages {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 8px 12px 6px;
+  overflow-y: auto;
+}
+
+.phone.phone-export .messages {
+  overflow: hidden;
 }
 .row {
   display: flex;

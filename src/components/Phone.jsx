@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 import { formatDateLine } from '../lib/formatDate.js'
 import { buildThreadItems, getEffectiveDateTime } from '../lib/messageDates.js'
 
@@ -38,16 +38,16 @@ function BatteryIcon({ level = 36 }) {
   )
 }
 
-function AvatarIcon() {
+function AvatarIcon({ gradientId = 'avatarGrad' }) {
   return (
     <svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true">
       <defs>
-        <linearGradient id="avatarGrad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#A9AEC4" />
           <stop offset="1" stopColor="#8A90AE" />
         </linearGradient>
       </defs>
-      <circle cx="37" cy="37" r="37" fill="url(#avatarGrad)" />
+      <circle cx="37" cy="37" r="37" fill={`url(#${gradientId})`} />
       <circle cx="37" cy="29" r="13" fill="#fff" />
       <path d="M37 45c-12 0-21 7-21 16v13h42V61c0-9-9-16-21-16z" fill="#fff" />
     </svg>
@@ -66,7 +66,30 @@ function MicIcon() {
 
 // ---------- main component ----------
 
-const Phone = forwardRef(function Phone({ state }, ref) {
+/**
+ * @param {object} props
+ * @param {object} props.state
+ * @param {Array} [props.messagesOverride] — page slice of messages
+ * @param {Date|null} [props.previousEffectiveDate] — for cross-page date separators
+ * @param {boolean} [props.showReceipt] — force receipt on/off (page-aware)
+ * @param {boolean} [props.measure] — unconstrained height for measuring
+ * @param {boolean} [props.exportMode] — hide scrollbars / clip only after fit
+ * @param {number} [props.phoneHeight] — override height (tall bubble exception)
+ */
+const Phone = forwardRef(function Phone(
+  {
+    state,
+    messagesOverride,
+    previousEffectiveDate = null,
+    showReceipt: showReceiptOverride,
+    measure = false,
+    exportMode = false,
+    phoneHeight,
+  },
+  ref,
+) {
+  const avatarGradId = useId().replace(/:/g, '')
+
   const {
     style,
     statusTime,
@@ -76,20 +99,43 @@ const Phone = forwardRef(function Phone({ state }, ref) {
     readLabel,
     readTime,
     unreadBadge,
-    messages,
+    messages: allMessages,
   } = state
 
-  const dateLine = formatDateLine(getEffectiveDateTime(messages, 0, dateTime))
+  const messages = messagesOverride ?? allMessages
 
-  const threadItems = buildThreadItems(messages, dateTime)
+  // Continuation pages inherit the prior page's last effective date as default.
+  const pageDefaultDate = previousEffectiveDate ?? dateTime
 
-  // index of the last "me" message — receipt only shows on it when it's the final message
+  const threadItems = buildThreadItems(messages, pageDefaultDate, {
+    previousDate: previousEffectiveDate,
+  })
+
+  const dateLine = formatDateLine(
+    messages.length
+      ? getEffectiveDateTime(messages, 0, pageDefaultDate)
+      : dateTime,
+  )
+
   const lastMeIndex = messages.reduce((acc, m, i) => (m.side === 'me' ? i : acc), -1)
-  const showReceipt =
+  const autoShowReceipt =
     readLabel && lastMeIndex !== -1 && lastMeIndex === messages.length - 1
+  const showReceipt =
+    showReceiptOverride !== undefined ? showReceiptOverride : autoShowReceipt
+
+  const className = [
+    'phone',
+    `style-${style}`,
+    measure ? 'phone-measure' : '',
+    exportMode ? 'phone-export' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const styleProp = phoneHeight ? { height: phoneHeight } : undefined
 
   return (
-    <div className={`phone style-${style}`} ref={ref}>
+    <div className={className} ref={ref} style={styleProp}>
       {/* status bar */}
       <div className="statusbar">
         <div className="statusbar-left">
@@ -112,7 +158,7 @@ const Phone = forwardRef(function Phone({ state }, ref) {
           {unreadBadge ? <span className="back-badge">{unreadBadge}</span> : null}
         </div>
         <div className="header-center">
-          <AvatarIcon />
+          <AvatarIcon gradientId={`avatarGrad-${avatarGradId}`} />
           <div className="contact-pill">
             <span className="contact-name">{contactName}</span>
             <span className="chevron-fwd">›</span>

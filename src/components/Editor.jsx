@@ -14,6 +14,7 @@ export default function Editor({
   startNewDay,
   onExport,
   busy,
+  exportProgress,
 }) {
   const [datePickerOpen, setDatePickerOpen] = useState({})
 
@@ -255,7 +256,11 @@ export default function Editor({
       </section>
 
       <button className="export" onClick={onExport} disabled={busy}>
-        {busy ? 'Saving…' : '⤓ Save as image'}
+        {busy
+          ? exportProgress
+            ? `Saving ${exportProgress.current}/${exportProgress.total}…`
+            : 'Saving…'
+          : '⤓ Save as image(s)'}
       </button>
     </div>
   )

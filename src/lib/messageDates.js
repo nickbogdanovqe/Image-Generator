@@ -19,14 +19,23 @@ export function getEffectiveDateTime(messages, index, defaultDateTime) {
   return defaultDateTime instanceof Date ? defaultDateTime : new Date(defaultDateTime)
 }
 
-export function buildThreadItems(messages, defaultDateTime) {
+/**
+ * @param {Array} messages
+ * @param {Date} defaultDateTime
+ * @param {{ previousDate?: Date|null }} [options] — last effective date before this slice (cross-page)
+ */
+export function buildThreadItems(messages, defaultDateTime, options = {}) {
   const items = []
-  let prevDate = null
+  let prevDate = options.previousDate ?? null
 
   messages.forEach((message, index) => {
     const effectiveDate = getEffectiveDateTime(messages, index, defaultDateTime)
 
-    if (index > 0 && prevDate && !isSameCalendarDay(prevDate, effectiveDate)) {
+    const showSeparator =
+      (index > 0 && prevDate && !isSameCalendarDay(prevDate, effectiveDate)) ||
+      (index === 0 && prevDate && !isSameCalendarDay(prevDate, effectiveDate))
+
+    if (showSeparator) {
       items.push({ type: 'date', dateTime: effectiveDate, key: `date-${message.id}` })
     }
 

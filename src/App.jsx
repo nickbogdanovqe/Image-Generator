@@ -1,8 +1,8 @@
 import { useRef, useState, useCallback } from 'react'
-import { toPng } from 'html-to-image'
 import Phone from './components/Phone.jsx'
 import Editor from './components/Editor.jsx'
 import { getEffectiveDateTime, nextCalendarDay } from './lib/messageDates.js'
+import { exportScreenshots } from './lib/exportScreenshots.js'
 
 let nextId = 100
 const makeId = () => ++nextId
@@ -37,6 +37,7 @@ const DEFAULT_STATE = {
 export default function App() {
   const [state, setState] = useState(DEFAULT_STATE)
   const [busy, setBusy] = useState(false)
+  const [exportProgress, setExportProgress] = useState(null)
   const phoneRef = useRef(null)
 
   const update = useCallback((patch) => {
@@ -90,28 +91,20 @@ export default function App() {
     })
   }, [])
 
-  // ----- export -----
+  // ----- export (multi-screen iPhone 16 Pro Max) -----
   const handleExport = useCallback(async () => {
-    const node = phoneRef.current
-    if (!node) return
     setBusy(true)
+    setExportProgress({ current: 0, total: 1 })
     try {
-      const dataUrl = await toPng(node, {
-        pixelRatio: 3,
-        cacheBust: true,
-        backgroundColor: '#ffffff',
-      })
-      const link = document.createElement('a')
-      link.download = 'imessage.png'
-      link.href = dataUrl
-      link.click()
+      await exportScreenshots(state, (info) => setExportProgress(info))
     } catch (err) {
       console.error('Export failed', err)
       alert('Sorry, the screenshot export failed. See the console for details.')
     } finally {
       setBusy(false)
+      setExportProgress(null)
     }
-  }, [])
+  }, [state])
 
   return (
     <div className="app">
@@ -125,6 +118,7 @@ export default function App() {
         startNewDay={startNewDay}
         onExport={handleExport}
         busy={busy}
+        exportProgress={exportProgress}
       />
       <div className="preview">
         <Phone ref={phoneRef} state={state} />
