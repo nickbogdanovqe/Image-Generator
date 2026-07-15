@@ -1,3 +1,6 @@
+/** Gap at or above this inserts another date/time header (same-day or next day). */
+export const DATE_SEPARATOR_GAP_MS = 2 * 60 * 60 * 1000
+
 export function isSameCalendarDay(a, b) {
   const d1 = a instanceof Date ? a : new Date(a)
   const d2 = b instanceof Date ? b : new Date(b)
@@ -19,6 +22,16 @@ export function getEffectiveDateTime(messages, index, defaultDateTime) {
   return defaultDateTime instanceof Date ? defaultDateTime : new Date(defaultDateTime)
 }
 
+/** True when calendar day changes or the clock gap is at least two hours. */
+export function shouldShowDateSeparator(prevDate, nextDate, gapMs = DATE_SEPARATOR_GAP_MS) {
+  if (!prevDate || !nextDate) return false
+  const a = prevDate instanceof Date ? prevDate : new Date(prevDate)
+  const b = nextDate instanceof Date ? nextDate : new Date(nextDate)
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return false
+  if (!isSameCalendarDay(a, b)) return true
+  return Math.abs(b.getTime() - a.getTime()) >= gapMs
+}
+
 /**
  * @param {Array} messages
  * @param {Date} defaultDateTime
@@ -31,11 +44,7 @@ export function buildThreadItems(messages, defaultDateTime, options = {}) {
   messages.forEach((message, index) => {
     const effectiveDate = getEffectiveDateTime(messages, index, defaultDateTime)
 
-    const showSeparator =
-      (index > 0 && prevDate && !isSameCalendarDay(prevDate, effectiveDate)) ||
-      (index === 0 && prevDate && !isSameCalendarDay(prevDate, effectiveDate))
-
-    if (showSeparator) {
+    if (shouldShowDateSeparator(prevDate, effectiveDate)) {
       items.push({ type: 'date', dateTime: effectiveDate, key: `date-${message.id}` })
     }
 
