@@ -51,3 +51,10 @@ export function nextCalendarDay(date) {
   d.setDate(d.getDate() + 1)
   return d
 }
+
+/** Copy calendar day from `baseDate`, set clock to hours/minutes (seconds zeroed). */
+export function withTimeOnDate(baseDate, hours, minutes) {
+  const d = baseDate instanceof Date ? new Date(baseDate) : new Date(baseDate)
+  d.setHours(hours, minutes, 0, 0)
+  return d
+}

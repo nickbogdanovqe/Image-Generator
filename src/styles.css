@@ -251,9 +251,38 @@ body {
   gap: 8px;
   margin-bottom: 8px;
 }
+.msg-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .msg-date-label {
   font-size: 12px;
   color: var(--secondary);
+  flex: 1;
+  min-width: 0;
+}
+.msg-time-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--secondary);
+  font-weight: 500;
+}
+.msg-time-input {
+  width: auto;
+  min-width: 7.5rem;
+  padding: 4px 8px;
+  border: 1px solid #d2d2d7;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 12px;
+  font-family: inherit;
+  color: inherit;
 }
 .msg-date-actions {
   display: flex;

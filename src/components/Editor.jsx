@@ -2,7 +2,14 @@ import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { formatDateLine } from '../lib/formatDate.js'
-import { getEffectiveDateTime } from '../lib/messageDates.js'
+import { getEffectiveDateTime, withTimeOnDate } from '../lib/messageDates.js'
+
+const pad2 = (n) => String(n).padStart(2, '0')
+
+function formatTimeValue(date) {
+  const d = date instanceof Date ? date : new Date(date)
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
+}
 
 export default function Editor({
   state,
@@ -29,6 +36,19 @@ export default function Editor({
       return next
     })
     updateMessage(id, { dateTime: undefined })
+  }
+
+  const handleNewDay = (id) => {
+    startNewDay(id)
+    setDatePickerOpen((open) => ({ ...open, [id]: true }))
+  }
+
+  const setMessageTime = (id, index, timeValue) => {
+    if (!timeValue) return
+    const [h, m] = timeValue.split(':').map(Number)
+    if (Number.isNaN(h) || Number.isNaN(m)) return
+    const effectiveDate = getEffectiveDateTime(state.messages, index, state.dateTime)
+    updateMessage(id, { dateTime: withTimeOnDate(effectiveDate, h, m) })
   }
   return (
     <div className="editor">
@@ -201,12 +221,24 @@ export default function Editor({
                 </div>
               </div>
               <div className="msg-date">
-                <span className="msg-date-label">
-                  Day: <strong>{formatDateLine(effectiveDate)}</strong>
-                  {m.dateTime ? ' (custom)' : ''}
-                </span>
+                <div className="msg-date-row">
+                  <span className="msg-date-label">
+                    Date &amp; time: <strong>{formatDateLine(effectiveDate)}</strong>
+                    {m.dateTime ? ' (custom)' : ''}
+                  </span>
+                  <label className="msg-time-label">
+                    Time
+                    <input
+                      type="time"
+                      className="msg-time-input"
+                      step={300}
+                      value={formatTimeValue(effectiveDate)}
+                      onChange={(e) => setMessageTime(m.id, i, e.target.value)}
+                    />
+                  </label>
+                </div>
                 <div className="msg-date-actions">
-                  <button type="button" onClick={() => startNewDay(m.id)}>
+                  <button type="button" onClick={() => handleNewDay(m.id)}>
                     New day
                   </button>
                   <button type="button" onClick={() => toggleDatePicker(m.id)}>
