@@ -66,28 +66,7 @@ function MicIcon() {
 
 // ---------- main component ----------
 
-/**
- * @param {object} props
- * @param {object} props.state
- * @param {Array} [props.messagesOverride] — page slice of messages
- * @param {Date|null} [props.previousEffectiveDate] — for cross-page date separators
- * @param {boolean} [props.showReceipt] — force receipt on/off (page-aware)
- * @param {boolean} [props.measure] — unconstrained height for measuring
- * @param {boolean} [props.exportMode] — hide scrollbars / clip only after fit
- * @param {number} [props.phoneHeight] — override height (tall bubble exception)
- */
-const Phone = forwardRef(function Phone(
-  {
-    state,
-    messagesOverride,
-    previousEffectiveDate = null,
-    showReceipt: showReceiptOverride,
-    measure = false,
-    exportMode = false,
-    phoneHeight,
-  },
-  ref,
-) {
+const Phone = forwardRef(function Phone({ state }, ref) {
   const avatarGradId = useId().replace(/:/g, '')
 
   const {
@@ -99,43 +78,21 @@ const Phone = forwardRef(function Phone(
     readLabel,
     readTime,
     unreadBadge,
-    messages: allMessages,
+    messages,
   } = state
 
-  const messages = messagesOverride ?? allMessages
-
-  // Continuation pages inherit the prior page's last effective date as default.
-  const pageDefaultDate = previousEffectiveDate ?? dateTime
-
-  const threadItems = buildThreadItems(messages, pageDefaultDate, {
-    previousDate: previousEffectiveDate,
-  })
+  const threadItems = buildThreadItems(messages, dateTime)
 
   const dateLine = formatDateLine(
-    messages.length
-      ? getEffectiveDateTime(messages, 0, pageDefaultDate)
-      : dateTime,
+    messages.length ? getEffectiveDateTime(messages, 0, dateTime) : dateTime,
   )
 
   const lastMeIndex = messages.reduce((acc, m, i) => (m.side === 'me' ? i : acc), -1)
-  const autoShowReceipt =
-    readLabel && lastMeIndex !== -1 && lastMeIndex === messages.length - 1
   const showReceipt =
-    showReceiptOverride !== undefined ? showReceiptOverride : autoShowReceipt
-
-  const className = [
-    'phone',
-    `style-${style}`,
-    measure ? 'phone-measure' : '',
-    exportMode ? 'phone-export' : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  const styleProp = phoneHeight ? { height: phoneHeight } : undefined
+    readLabel && lastMeIndex !== -1 && lastMeIndex === messages.length - 1
 
   return (
-    <div className={className} ref={ref} style={styleProp}>
+    <div className={`phone style-${style}`} ref={ref}>
       {/* status bar */}
       <div className="statusbar">
         <div className="statusbar-left">

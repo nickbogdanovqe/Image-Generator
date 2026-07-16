@@ -356,17 +356,6 @@ body {
   overflow: hidden;
 }
 
-/* Unconstrained height used only for offscreen measurement */
-.phone.phone-measure {
-  height: auto;
-  min-height: 956px;
-}
-
-.phone.phone-measure .messages {
-  flex: none;
-  overflow: visible;
-}
-
 /* ---- status bar ---- */
 .statusbar {
   display: flex;
@@ -508,11 +497,25 @@ body {
   flex-direction: column;
   gap: 4px;
   padding: 8px 12px 6px;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
-.phone.phone-export .messages {
-  overflow: hidden;
+/* During PNG capture: no scrollbars, clip to the phone frame */
+.phone.phone-capturing,
+.phone.phone-capturing * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.phone.phone-capturing::-webkit-scrollbar,
+.phone.phone-capturing *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+.phone.phone-capturing .messages {
+  overflow: hidden !important;
 }
 .row {
   display: flex;

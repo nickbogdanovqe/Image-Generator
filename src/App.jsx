@@ -1,8 +1,9 @@
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
 import Phone from './components/Phone.jsx'
 import Editor from './components/Editor.jsx'
 import { getEffectiveDateTime, nextCalendarDay } from './lib/messageDates.js'
-import { exportScreenshots } from './lib/exportScreenshots.js'
+import { exportVisibleScreenshot } from './lib/exportScreenshots.js'
+import { loadConversation, saveConversation, maxMessageId } from './lib/storage.js'
 
 let nextId = 100
 const makeId = () => ++nextId
@@ -34,11 +35,24 @@ const DEFAULT_STATE = {
   ],
 }
 
+function getInitialState() {
+  const saved = loadConversation()
+  if (saved) {
+    nextId = Math.max(100, maxMessageId(saved))
+    return saved
+  }
+  return DEFAULT_STATE
+}
+
 export default function App() {
-  const [state, setState] = useState(DEFAULT_STATE)
+  const [state, setState] = useState(getInitialState)
   const [busy, setBusy] = useState(false)
-  const [exportProgress, setExportProgress] = useState(null)
   const phoneRef = useRef(null)
+
+  // Persist conversation to localStorage whenever it changes
+  useEffect(() => {
+    saveConversation(state)
+  }, [state])
 
   const update = useCallback((patch) => {
     setState((s) => ({ ...s, ...patch }))
@@ -91,20 +105,20 @@ export default function App() {
     })
   }, [])
 
-  // ----- export (multi-screen iPhone 16 Pro Max) -----
+  // ----- export: capture exactly the scrolled viewport -----
   const handleExport = useCallback(async () => {
+    const node = phoneRef.current
+    if (!node) return
     setBusy(true)
-    setExportProgress({ current: 0, total: 1 })
     try {
-      await exportScreenshots(state, (info) => setExportProgress(info))
+      await exportVisibleScreenshot(node)
     } catch (err) {
       console.error('Export failed', err)
       alert('Sorry, the screenshot export failed. See the console for details.')
     } finally {
       setBusy(false)
-      setExportProgress(null)
     }
-  }, [state])
+  }, [])
 
   return (
     <div className="app">
@@ -118,7 +132,6 @@ export default function App() {
         startNewDay={startNewDay}
         onExport={handleExport}
         busy={busy}
-        exportProgress={exportProgress}
       />
       <div className="preview">
         <Phone ref={phoneRef} state={state} />
