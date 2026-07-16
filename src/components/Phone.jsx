@@ -167,35 +167,39 @@ const Phone = forwardRef(function Phone({ state }, ref) {
 
       {/* messages — RCS label + date scroll with the thread (like iPhone) */}
       <div className="messages">
-        <div className="thread-meta">
-          <div className="sublabel">Text Message • RCS</div>
-          <div className="dateline">{dateLine}</div>
-        </div>
-        {threadItems.map((item) => {
-          if (item.type === 'date') {
+        {/* Persistent wrapper so screenshot export can shift this content by
+            scrollTop directly (see exportVisibleScreenshot). */}
+        <div className="messages-content">
+          <div className="thread-meta">
+            <div className="sublabel">Text Message • RCS</div>
+            <div className="dateline">{dateLine}</div>
+          </div>
+          {threadItems.map((item) => {
+            if (item.type === 'date') {
+              return (
+                <div key={item.key} className="date-separator">
+                  {formatDateLine(item.dateTime)}
+                </div>
+              )
+            }
+
+            const { message, index } = item
+            const next = messages[index + 1]
+            const isLastOfRun = !next || next.side !== message.side
             return (
-              <div key={item.key} className="date-separator">
-                {formatDateLine(item.dateTime)}
+              <div key={item.key} className={`row ${message.side}`}>
+                <div className={`bubble ${message.side} ${isLastOfRun ? 'tail' : ''}`}>
+                  {message.text}
+                </div>
               </div>
             )
-          }
-
-          const { message, index } = item
-          const next = messages[index + 1]
-          const isLastOfRun = !next || next.side !== message.side
-          return (
-            <div key={item.key} className={`row ${message.side}`}>
-              <div className={`bubble ${message.side} ${isLastOfRun ? 'tail' : ''}`}>
-                {message.text}
-              </div>
+          })}
+          {showReceipt ? (
+            <div className="receipt">
+              <span className="receipt-label">{readLabel}</span> {readTime}
             </div>
-          )
-        })}
-        {showReceipt ? (
-          <div className="receipt">
-            <span className="receipt-label">{readLabel}</span> {readTime}
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
 
       {/* input bar */}
