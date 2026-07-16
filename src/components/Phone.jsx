@@ -71,6 +71,18 @@ function InitialsAvatar({ initials, gradientId = 'avatarGrad' }) {
         textAnchor="middle"
         dominantBaseline="central"
         className="avatar-initials"
+        // Inline styling is required in addition to the CSS class: html-to-image
+        // (used for PNG export) clones <svg> subtrees natively without inlining
+        // computed CSS, and the exported SVG has no access to styles.css, so
+        // class-only styling silently disappears from the saved image.
+        style={{
+          fill: '#fff',
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', 'Helvetica Neue', Arial, sans-serif",
+          fontSize: '28px',
+          fontWeight: 600,
+          letterSpacing: '0.5px',
+        }}
       >
         {initials}
       </text>
