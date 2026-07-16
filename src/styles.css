@@ -460,6 +460,14 @@ body {
   align-items: center;
   gap: 6px;
 }
+.avatar-initials {
+  fill: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro',
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
 .contact-pill {
   display: inline-flex;
   align-items: center;

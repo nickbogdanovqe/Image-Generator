@@ -1,6 +1,7 @@
 import { forwardRef, useId } from 'react'
 import { formatDateLine } from '../lib/formatDate.js'
 import { buildThreadItems, getEffectiveDateTime } from '../lib/messageDates.js'
+import { getInitials } from '../lib/contactName.js'
 
 // ---------- small SVG / glyph pieces ----------
 
@@ -54,6 +55,29 @@ function AvatarIcon({ gradientId = 'avatarGrad' }) {
   )
 }
 
+function InitialsAvatar({ initials, gradientId = 'avatarGrad' }) {
+  return (
+    <svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true">
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#A9AEC4" />
+          <stop offset="1" stopColor="#8A90AE" />
+        </linearGradient>
+      </defs>
+      <circle cx="37" cy="37" r="37" fill={`url(#${gradientId})`} />
+      <text
+        x="37"
+        y="37"
+        textAnchor="middle"
+        dominantBaseline="central"
+        className="avatar-initials"
+      >
+        {initials}
+      </text>
+    </svg>
+  )
+}
+
 function MicIcon() {
   return (
     <svg width="16" height="22" viewBox="0 0 16 22" aria-hidden="true">
@@ -80,6 +104,8 @@ const Phone = forwardRef(function Phone({ state }, ref) {
     unreadBadge,
     messages,
   } = state
+
+  const initials = getInitials(contactName)
 
   const threadItems = buildThreadItems(messages, dateTime)
 
@@ -115,7 +141,11 @@ const Phone = forwardRef(function Phone({ state }, ref) {
           {unreadBadge ? <span className="back-badge">{unreadBadge}</span> : null}
         </div>
         <div className="header-center">
-          <AvatarIcon gradientId={`avatarGrad-${avatarGradId}`} />
+          {initials ? (
+            <InitialsAvatar initials={initials} gradientId={`avatarGrad-${avatarGradId}`} />
+          ) : (
+            <AvatarIcon gradientId={`avatarGrad-${avatarGradId}`} />
+          )}
           <div className="contact-pill">
             <span className="contact-name">{contactName}</span>
             <span className="chevron-fwd">›</span>
