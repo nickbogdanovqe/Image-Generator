@@ -120,13 +120,15 @@ const Phone = forwardRef(function Phone({ state }, ref) {
             <span className="contact-name">{contactName}</span>
             <span className="chevron-fwd">›</span>
           </div>
-          <div className="sublabel">Text Message • RCS</div>
-          <div className="dateline">{dateLine}</div>
         </div>
       </div>
 
-      {/* messages */}
+      {/* messages — RCS label + date scroll with the thread (like iPhone) */}
       <div className="messages">
+        <div className="thread-meta">
+          <div className="sublabel">Text Message • RCS</div>
+          <div className="dateline">{dateLine}</div>
+        </div>
         {threadItems.map((item) => {
           if (item.type === 'date') {
             return (
